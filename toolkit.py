@@ -1,13 +1,10 @@
 import time
+import os
+import sys
+import itertools
 
 def WriteInFile(filename, args, dict_write_mode='opol'):
-    '''
-    this method is to write a list/ndarray/dict in a file
-    :param filename:
-    :param args:
-    :param dict_write_mode:
-    :return:
-    '''
+    "this method is to write a list/ndarray/dict in a file"
     with open(filename,'w') as f:
         if dict_write_mode is not None and dict_write_mode not in ['opol','optl']:
             raise ValueError
@@ -29,20 +26,8 @@ def WriteInFile(filename, args, dict_write_mode='opol'):
             pass
     return None
 
-
-
-
-
-
-
-
-
 def time_cost(fn):
-    '''
-    print the time cost of the function
-    :param fn:
-    :return:
-    '''
+    "print the time cost of the function"
     def cost(*args,**kwargs):
         beg = time.time()
         fn(*args,**kwargs)
@@ -53,11 +38,7 @@ def time_cost(fn):
     return cost
 
 def ttime(fn):
-    '''
-    print the begin time and end time of the function
-    :param fn:
-    :return:
-    '''
+    "print the begin time and end time of the function"
     def _ttime(*args,**kwargs):
         print('-' * 50)
         print('begin time:'+ time.ctime())
@@ -68,6 +49,29 @@ def ttime(fn):
         print('-' * 50)
     return _ttime
 
+def ensure_dir_exists(directory):
+    "Creates directories if they don't exist."
+    if not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+
+
+def path_walk(pathname):
+    for root, dirs, files in os.walk(pathname, topdown=False):
+        for name in files:
+            yield os.path.join(root, name)
+
+
+
+def iter_chunks(chunk_size, iterator):
+    "Yield from an iterator in chunks of chunk_size."
+    iterator = iter(iterator)
+    while True:
+        next_chunk = list(itertools.islice(iterator, chunk_size))
+        # If len(iterable) % chunk_size == 0, don't return an empty chunk.
+        if next_chunk:
+            yield next_chunk
+        else:
+            break
 
 
 
@@ -77,13 +81,32 @@ def ttime(fn):
 
 
 
+
+
+
+
+
+
+
+
+
+@time_cost
+@ttime
+def p(x,y,a=10):
+    print('000')
 
 def test():
-    @time_cost
-    @ttime
-    def p(x,y,a=10):
-        print('000')
-    p(10,20,20)
+    # for file in path_walk('.'):
+    #     print(file)
+
+
+    # it= [1,2,3,4,5,6,7,8,9,10]
+    # chunk_size = 2
+    # for i in iter_chunks(chunk_size,it):
+    #     print(i)
+
+    pass
+
+
 if __name__ =='__main__':
     test()
-
