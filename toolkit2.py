@@ -10,6 +10,7 @@ import glob
 import csv
 import datetime
 
+
 class Scaler(object):
     """ Generate scale and offset based on running mean and stddev along axis=0
 
@@ -46,11 +47,13 @@ class Scaler(object):
             new_data_var = np.var(x, axis=0)
             new_data_mean = np.mean(x, axis=0)
             new_data_mean_sq = np.square(new_data_mean)
-            new_means = ((self.means * self.m) + (new_data_mean * n)) / (self.m + n)
+            new_means = ((self.means * self.m) +
+                         (new_data_mean * n)) / (self.m + n)
             self.vars = (((self.m * (self.vars + np.square(self.means))) +
                           (n * (new_data_var + new_data_mean_sq))) / (self.m + n) -
                          np.square(new_means))
-            self.vars = np.maximum(0.0, self.vars)  # occasionally goes negative, clip
+            # occasionally goes negative, clip
+            self.vars = np.maximum(0.0, self.vars)
             self.means = new_means
             self.m += n
 
@@ -61,6 +64,7 @@ class Scaler(object):
 
 class Logger(object):
     """ Simple training logger: saves to file and optionally prints to stdout """
+
     def __init__(self, logname, now):
         """
         Args:
@@ -68,11 +72,13 @@ class Logger(object):
             now: unique sub-directory name (e.g. date/time string)
         """
         path = os.path.join('log-files', logname, now)
-        print(path)
         os.makedirs(path)
-        filenames = glob.glob('*.py')  # put copy of all python files in log_dir
+        # put copy of all python files in log_dir
+        filenames = glob.glob('*.py')
+        code_path = os.path.join(path, 'current_code')
+        os.makedirs(code_path)
         for filename in filenames:     # for reference
-            shutil.copy(filename, path)
+            shutil.copy(filename, code_path)
         path = os.path.join(path, 'log.csv')
 
         self.write_header = True
@@ -103,7 +109,7 @@ class Logger(object):
         log_keys = [k for k in log.keys()]
         log_keys.sort()
         print('***** Episode {}, Mean Reward = {:.1f} *****'.format(log['_Episode'],
-                                                               log['_MeanReward']))
+                                                                    log['_MeanReward']))
         for key in log_keys:
             if key[0] != '_':  # don't display log items with leading '_'
                 print('{:s}: {:.3g}'.format(key, log[key]))
@@ -122,17 +128,14 @@ class Logger(object):
         self.f.close()
 
 
-
-
-
-if __name__ =='__main__':
+if __name__ == '__main__':
     now = datetime.datetime.now().strftime("%b_%d_%H_%M_%S")
-    logger = Logger('test_file',now)
+    logger = Logger('test_file', now)
     for i in range(10):
         logger.log({
             '_Episode': i,
             '_MeanReward': np.random.rand()
-            })
+        })
 
         logger.write(display=True)
 
